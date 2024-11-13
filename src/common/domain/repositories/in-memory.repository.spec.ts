@@ -1,4 +1,3 @@
-import { beforeEach, describe } from 'node:test'
 import { InMemoryRepository } from './in-memory.repository'
 import { randomUUID } from 'node:crypto'
 
@@ -7,7 +6,7 @@ type StubModelProps = {
   name: string
   price: number
   created_at: Date
-  update_at: Date
+  updated_at: Date
 }
 
 class StubInMemoryRepository extends InMemoryRepository<StubModelProps> {
@@ -48,13 +47,17 @@ describe('InMemoryRepository unit test', () => {
       created_at,
       updated_at,
       ...props,
-  
     }
   })
 
   it('should create a new model', () => {
     const result = sut.create(props)
     expect(result.name).toStrictEqual('test name')
+  })
+
+  it('should inserts a new model', async () => {
+    const result = await sut.insert(model)
+    expect(result).toStrictEqual(sut.items[0])
   })
 })
 
