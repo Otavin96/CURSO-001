@@ -1,3 +1,4 @@
+import { NotFoundError } from '../erros/not-found-error'
 import { InMemoryRepository } from './in-memory.repository'
 import { randomUUID } from 'node:crypto'
 
@@ -27,7 +28,6 @@ class StubInMemoryRepository extends InMemoryRepository<StubModelProps> {
 }
 
 describe('InMemoryRepository unit test', () => {
-
   let sut: StubInMemoryRepository
   let model: StubModelProps
   let props: any
@@ -59,5 +59,10 @@ describe('InMemoryRepository unit test', () => {
     const result = await sut.insert(model)
     expect(result).toStrictEqual(sut.items[0])
   })
-})
 
+  it('Should throw error when id not found', async () => {
+    await expect(sut.findById('fake_id')).rejects.toThrow(
+      new NotFoundError('Model not found using ID fake_id'),
+    )
+  })
+})
