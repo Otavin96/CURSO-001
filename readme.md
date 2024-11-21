@@ -53,8 +53,9 @@ O projeto inicial contém apenas o arquivo `server.ts` com o um `console.log`. E
 npm run dev
 ```
 
-**Partiu curso!**
+npm i @faker-js/faker --save-dev
 
+**Partiu curso!**
 
 ## Redes Sociais
 
