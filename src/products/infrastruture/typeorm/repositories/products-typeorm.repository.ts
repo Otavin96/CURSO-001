@@ -12,6 +12,7 @@ import { Repository } from 'typeorm'
 import { Product } from '../entities/products.entity'
 import { dataSource } from '@/common/infrastructure/typeorm'
 import { NotFoundError } from '@/common/domain/erros/not-found-error'
+import { ConflictError } from '@/common/domain/erros/conflict-error'
 
 export class ProductTypeormRepository implements ProductsRepository {
   sortableFields: string[] = ['name', 'created_at']
@@ -21,16 +22,28 @@ export class ProductTypeormRepository implements ProductsRepository {
     this.productsRepository = dataSource.getRepository(Product)
   }
 
-  findByName(name: string): Promise<ProductModel> {
-    throw new Error('Method not implemented.')
+  async findByName(name: string): Promise<ProductModel> {
+    const product = await this.productsRepository.findOneBy({ name })
+
+    if (!product) {
+      throw new NotFoundError(`Product not found using name ${name}`)
+    }
+
+    return product
   }
 
   findAllByIds(productIds: ProductId[]): Promise<ProductModel[]> {
     throw new Error('Method not implemented.')
   }
 
-  confictingName(name: string): Promise<void> {
-    throw new Error('Method not implemented.')
+  async confictingName(name: string): Promise<void> {
+    const product = await this.productsRepository.findOneBy({ name })
+
+    if (product) {
+      throw new ConflictError('Name already used by another product')
+    }
+
+    return product
   }
 
   create(props: CreateProductProps): ProductModel {
@@ -45,12 +58,15 @@ export class ProductTypeormRepository implements ProductsRepository {
     return this._get(id)
   }
 
-  update(model: ProductModel): Promise<ProductModel> {
-    throw new Error('Method not implemented.')
+  async update(model: ProductModel): Promise<ProductModel> {
+    await this._get(model.id)
+    await this.productsRepository.update({ id: model.id }, model)
+    return model
   }
 
-  delete(id: string): Promise<void> {
-    throw new Error('Method not implemented.')
+  async delete(id: string): Promise<void> {
+    await this._get(id)
+    await this.productsRepository.delete({ id })
   }
 
   search(props: SearchInput): Promise<SearchOutput<ProductModel>> {
@@ -58,9 +74,9 @@ export class ProductTypeormRepository implements ProductsRepository {
   }
 
   protected async _get(id: string): Promise<ProductModel> {
-    const product = await this.productsRepository.findOneBy({id})
+    const product = await this.productsRepository.findOneBy({ id })
 
-    if(!product) {
+    if (!product) {
       throw new NotFoundError(`Product not found using ID ${id}`)
     }
 
