@@ -1,5 +1,7 @@
 import { BadRequestError } from '@/common/domain/erros/bad-request-error'
 import { ProductsRepository } from '@/products/repositories/products.repository'
+import { inject, injectable } from 'tsyringe'
+import { ProductOutput } from '../dtos/product-output.dto'
 
 export namespace CreateProductUseCase {
   export type Input = {
@@ -8,17 +10,14 @@ export namespace CreateProductUseCase {
     quantity: number
   }
 
-  export type Output = {
-    id: string
-    name: string
-    price: number
-    quantity: number
-    created_at: Date
-    updated_at: Date
-  }
+  export type Output = ProductOutput
 
+  @injectable()
   export class UseCase {
-    constructor(private productsRepository: ProductsRepository) {}
+    constructor(
+      @inject('ProductRepository')
+      private productsRepository: ProductsRepository,
+    ) {}
 
     async execute(input: Input): Promise<Output> {
       if (!input.name || input.price <= 0 || input.quantity <= 0) {
@@ -28,16 +27,10 @@ export namespace CreateProductUseCase {
       await this.productsRepository.confictingName(input.name)
 
       const product = this.productsRepository.create(input)
-      await this.productsRepository.insert(product)
+      const CreatedProduct: ProductOutput =
+        await this.productsRepository.insert(product)
 
-      return {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: product.quantity,
-        created_at: product.created_at,
-        updated_at: product.updated_at,
-      }
+      return CreatedProduct
     }
   }
 }

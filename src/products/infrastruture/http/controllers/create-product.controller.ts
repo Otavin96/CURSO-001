@@ -1,34 +1,37 @@
-import { AppError } from "@/common/domain/erros/app-error";
+import { AppError } from '@/common/domain/erros/app-error'
 import { Request, Response } from 'express'
-import { z } from "zod";
-import { ProductTypeormRepository } from "../../typeorm/repositories/products-typeorm.repository";
-import { dataSource } from "@/common/infrastructure/typeorm";
-import { Product } from "../../typeorm/entities/products.entity";
-import { CreateProductUseCase } from "@/products/application/usecases/create-product.usercase";
+import { z } from 'zod'
+import { CreateProductUseCase } from '@/products/application/usecases/create-product.usercase'
+import { container } from 'tsyringe'
 
-export async function createProductController(request: Request, response: Response) {
+export async function createProductController(
+  request: Request,
+  response: Response,
+) {
   const createProductBodySchema = z.object({
     name: z.string(),
     price: z.number(),
-    quantity: z.number()
+    quantity: z.number(),
   })
 
   const validatedData = createProductBodySchema.safeParse(request.body)
 
-  if(validatedData.success === false) {
+  if (validatedData.success === false) {
     console.error('Invalid data', validatedData.error.format())
-    throw new AppError(`${validatedData.error.errors.map(err => {
-      return `${err.path} => ${err.message}`
-    })}`)
+    throw new AppError(
+      `${validatedData.error.errors.map(err => {
+        return `${err.path} => ${err.message}`
+      })}`,
+    )
   }
 
   const { name, price, quantity } = validatedData.data
 
-  const repository = new ProductTypeormRepository()
-  repository.productsRepository = dataSource.getRepository(Product)
-  const createProductUseCase = new CreateProductUseCase.UseCase(repository)
-
-  const product = await createProductUseCase.execute({name, price, quantity})
+  container.resolve('ProductRepository')
+  const createProductUseCase: CreateProductUseCase.UseCase = container.resolve(
+    'CreateProductUseCase',
+  )
+  const product = await createProductUseCase.execute({ name, price, quantity })
 
   return response.status(201).json(product)
 }
