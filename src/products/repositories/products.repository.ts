@@ -6,11 +6,12 @@ export type ProductId = {
 }
 
 export type CreateProductProps = {
-  id: string
+  id?: string
   name: string
   price: number
-  created_at: Date
-  updated_at: Date
+  quantity: number
+  created_at?: Date
+  updated_at?: Date
 }
 
 export interface ProductsRepository

@@ -8,7 +8,7 @@ import {
   ProductId,
   ProductsRepository,
 } from '@/products/repositories/products.repository'
-import { Repository } from 'typeorm'
+import { ILike, In, Repository } from 'typeorm'
 import { Product } from '../entities/products.entity'
 import { dataSource } from '@/common/infrastructure/typeorm'
 import { NotFoundError } from '@/common/domain/erros/not-found-error'
@@ -32,8 +32,14 @@ export class ProductTypeormRepository implements ProductsRepository {
     return product
   }
 
-  findAllByIds(productIds: ProductId[]): Promise<ProductModel[]> {
-    throw new Error('Method not implemented.')
+  async findAllByIds(productIds: ProductId[]): Promise<ProductModel[]> {
+    const ids = productIds.map(productId => productId.id)
+
+    const productsFound = await this.productsRepository.find({
+      where: { id: In(ids) },
+    })
+
+    return productsFound
   }
 
   async confictingName(name: string): Promise<void> {
@@ -42,8 +48,6 @@ export class ProductTypeormRepository implements ProductsRepository {
     if (product) {
       throw new ConflictError('Name already used by another product')
     }
-
-    return product
   }
 
   create(props: CreateProductProps): ProductModel {
@@ -69,8 +73,30 @@ export class ProductTypeormRepository implements ProductsRepository {
     await this.productsRepository.delete({ id })
   }
 
-  search(props: SearchInput): Promise<SearchOutput<ProductModel>> {
-    throw new Error('Method not implemented.')
+  async search(props: SearchInput): Promise<SearchOutput<ProductModel>> {
+    const validSort = this.sortableFields.includes(props.sort) || false
+    const dirOps = ['asc', 'desc']
+    const validSortDir =
+      (props.sort_dir && dirOps.includes(props.sort_dir.toLowerCase())) || false
+    const orderByField = validSort ? props.sort : 'created_at'
+    const orderByDir = validSortDir ? props.sort_dir : 'desc'
+
+    const [products, total] = await this.productsRepository.findAndCount({
+      ...(props.filter && { where: { name: ILike(props.filter) } }),
+      order: { [orderByField]: orderByDir },
+      skip: (props.page - 1) * props.per_page,
+      take: props.per_page,
+    })
+
+    return {
+      items: products,
+      per_page: props.per_page,
+      total,
+      current_page: props.page,
+      sort: orderByField,
+      sort_dir: orderByDir,
+      filter: props.filter,
+    }
   }
 
   protected async _get(id: string): Promise<ProductModel> {
