@@ -1,4 +1,4 @@
-import { productsRouter } from '@/products/infrastruture/http/controllers/products.route'
+import { productsRouter } from '@/products/infrastruture/http/routes/products.route'
 import { Router } from 'express'
 
 const routes = Router()
