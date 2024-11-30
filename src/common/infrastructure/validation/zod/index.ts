@@ -3,7 +3,7 @@ import { AppError } from "@/common/domain/erros/app-error"
 export function dataValidation(schema: any, data: any) {
 
   /**
-   * @param schme objeto com schema de validation para Zod
+   * @param schema objeto com schema de validation para Zod
    * @param data objeto com os dados a serem validados
    * @returns retorna os dados validados
    */
