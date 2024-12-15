@@ -20,6 +20,7 @@ export abstract class InMemoryRepository<Model extends ModelProps>
 {
   items: Model[] = []
   sortableFields: string[] = []
+
   create(props: CreateProps): Model {
     const model = {
       id: randomUUID(),
@@ -86,6 +87,7 @@ export abstract class InMemoryRepository<Model extends ModelProps>
     if (!sort || !this.sortableFields.includes(sort)) {
       return items
     }
+
     return [...items].sort((a, b) => {
       if (a[sort] < b[sort]) {
         return sort_dir === 'asc' ? -1 : 1
@@ -96,6 +98,7 @@ export abstract class InMemoryRepository<Model extends ModelProps>
       return 0
     })
   }
+
   protected async applyPaginate(
     items: Model[],
     page: number,

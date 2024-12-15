@@ -6,6 +6,7 @@ import { dataSource } from '@/common/infrastructure/typeorm'
 import { GetProductUseCase } from '@/products/application/usecases/get-product.usercase'
 import { UpdateProductUseCase } from '@/products/application/usecases/update-product.usercase'
 import { DeleteProductUseCase } from '@/products/application/usecases/delete-product.usercase'
+import { SearchProductUseCase } from '@/products/application/usecases/search-product.usecase'
 
 container.registerSingleton('ProductRepository', ProductTypeormRepository)
 container.registerSingleton(
@@ -26,4 +27,9 @@ container.registerSingleton('GetProductUseCase', GetProductUseCase.UseCase)
 container.registerSingleton(
   'DeleteProductUseCase',
   DeleteProductUseCase.UseCase,
+)
+
+container.registerSingleton(
+  'SearchProductUseCase',
+  SearchProductUseCase.UseCase,
 )
