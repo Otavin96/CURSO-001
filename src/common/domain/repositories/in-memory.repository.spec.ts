@@ -157,7 +157,7 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'TEST', price: 20, created_at, updated_at },
         { id: randomUUID(), name: 'fake', price: 30, created_at, updated_at },
       ]
-      
+
       let result = await sut['applySort'](items, null, null)
       expect(result).toStrictEqual(items)
 
@@ -171,15 +171,13 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'a', price: 20, created_at, updated_at },
         { id: randomUUID(), name: 'c', price: 30, created_at, updated_at },
       ]
-      
+
       let result = await sut['applySort'](items, 'name', 'desc')
       expect(result).toStrictEqual([items[2], items[0], items[1]])
 
       result = await sut['applySort'](items, 'name', 'asc')
       expect(result).toStrictEqual([items[1], items[0], items[2]])
     })
-
-
   })
 
   describe('applyPaginate', () => {
@@ -191,7 +189,7 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'd', price: 20, created_at, updated_at },
         { id: randomUUID(), name: 'e', price: 30, created_at, updated_at },
       ]
-      
+
       let result = await sut['applyPaginate'](items, 1, 2)
       expect(result).toStrictEqual([items[0], items[1]])
 
@@ -205,10 +203,9 @@ describe('InMemoryRepository unit test', () => {
 
   describe('search', () => {
     it('Should paginate items', async () => {
-      
       const items = Array(16).fill(model)
       sut.items = items
-      
+
       const result = await sut.search({})
       expect(result).toStrictEqual({
         items: Array(15).fill(model),
@@ -222,7 +219,6 @@ describe('InMemoryRepository unit test', () => {
     })
 
     it('Should apply paginate and filter', async () => {
-      
       const items = [
         { id: randomUUID(), name: 'test', price: 10, created_at, updated_at },
         { id: randomUUID(), name: 'b', price: 20, created_at, updated_at },
@@ -230,7 +226,7 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'TeSt', price: 20, created_at, updated_at },
       ]
       sut.items = items
-      
+
       const result = await sut.search({
         page: 1,
         per_page: 2,
@@ -248,7 +244,6 @@ describe('InMemoryRepository unit test', () => {
     })
 
     it('Should apply paginate and sort', async () => {
-      
       const items = [
         { id: randomUUID(), name: 'b', price: 10, created_at, updated_at },
         { id: randomUUID(), name: 'a', price: 20, created_at, updated_at },
@@ -257,12 +252,12 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'c', price: 20, created_at, updated_at },
       ]
       sut.items = items
-      
+
       let result = await sut.search({
         page: 1,
         per_page: 2,
         sort: 'name',
-        sort_dir: 'asc'
+        sort_dir: 'asc',
       })
       expect(result).toStrictEqual({
         items: [items[1], items[0]],
@@ -278,7 +273,7 @@ describe('InMemoryRepository unit test', () => {
         page: 2,
         per_page: 2,
         sort: 'name',
-        sort_dir: 'asc'
+        sort_dir: 'asc',
       })
       expect(result).toStrictEqual({
         items: [items[4], items[2]],
@@ -292,7 +287,6 @@ describe('InMemoryRepository unit test', () => {
     })
 
     it('Should search using filter, sort and paginate', async () => {
-      
       const items = [
         { id: randomUUID(), name: 'TEST', price: 10, created_at, updated_at },
         { id: randomUUID(), name: 'a', price: 20, created_at, updated_at },
@@ -301,7 +295,7 @@ describe('InMemoryRepository unit test', () => {
         { id: randomUUID(), name: 'TeSt', price: 20, created_at, updated_at },
       ]
       sut.items = items
-      
+
       let result = await sut.search({
         page: 1,
         per_page: 2,
@@ -336,6 +330,5 @@ describe('InMemoryRepository unit test', () => {
         filter: 'test',
       })
     })
-
   })
 })
