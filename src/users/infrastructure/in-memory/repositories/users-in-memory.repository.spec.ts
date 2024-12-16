@@ -60,7 +60,106 @@ describe('UsersInMemoryRepository Unit Tests', () => {
     })
   })
 
-  // describe('applyFilter', () => {})
+  describe('applyFilter', () => {
+    it('should no filter items when filter object is null', async () => {
+      const user = UsersDataBuilder({})
+      sut.insert(user)
+      const spyFilter = jest.spyOn(sut.items, 'filter' as any)
 
-  // describe('applySort', () => {})
+      const filteredItems = await sut['applyFilter'](sut.items, null as any)
+      expect(spyFilter).not.toHaveBeenCalled()
+      expect(filteredItems).toStrictEqual(sut.items)
+    })
+
+    it('should filter name field using filter paramenter', async () => {
+      const items = [
+        UsersDataBuilder({ name: 'Test' }),
+        UsersDataBuilder({ name: 'TEST' }),
+        UsersDataBuilder({ name: 'fake' }),
+      ]
+
+      sut.items = items
+      const spyFilter = jest.spyOn(items, 'filter' as any)
+
+      const filteredItems = await sut['applyFilter'](sut.items, 'TEST')
+      expect(spyFilter).toHaveBeenCalledTimes(1)
+      expect(filteredItems).toStrictEqual([sut.items[0], sut.items[1]])
+    } )
+  })
+
+  describe('applySort', () => {
+    it('should sort by created_at when sort param is null', async () => {
+      const created_at = new Date()
+      const items = [
+        UsersDataBuilder({
+          name: 'c',
+          created_at: created_at,
+        }),
+        UsersDataBuilder({
+          name: 'a',
+          created_at: new Date(created_at.getTime() + 100)
+        }),
+        UsersDataBuilder({
+          name: 'b',
+          created_at: new Date(created_at.getTime() + 200)
+        }),
+      ]
+
+      sut.items = items
+      const sortedItems = await sut['applySort'](sut.items, null, null)
+      expect(sortedItems).toStrictEqual([
+        sut.items[2],
+        sut.items[1],
+        sut.items[0],
+      ])
+    })
+
+    it('should sort by name field', async () => {
+      const items = [
+        UsersDataBuilder({name: 'c'}),
+        UsersDataBuilder({name: 'b'}),
+        UsersDataBuilder({name: 'a'}),
+      ]
+
+      sut.items = items
+
+      let sortedItems = await sut['applySort'](sut.items, 'name', 'asc')
+      expect(sortedItems).toStrictEqual([
+        sut.items[2],
+        sut.items[1],
+        sut.items[0],
+      ])
+
+      sortedItems = await sut['applySort'](sut.items, 'name', 'desc')
+      expect(sortedItems).toStrictEqual([
+        sut.items[0],
+        sut.items[1],
+        sut.items[2],
+      ])
+    })
+
+    it('should sort by email field', async () => {
+      const items = [
+        UsersDataBuilder({ email: 'c@a.com'}),
+        UsersDataBuilder({ email: 'b@a.com'}),
+        UsersDataBuilder({ email: 'a@a.com'}),
+      ]
+
+      sut.items = items
+
+      let sortedItems = await sut['applySort'](sut.items, 'email', 'asc')
+      expect(sortedItems).toStrictEqual([
+          sut.items[2],
+          sut.items[1],
+          sut.items[0],
+      ])
+
+      sortedItems = await sut['applySort'](sut.items, 'email', 'desc')
+      expect(sortedItems).toStrictEqual([
+          sut.items[0],
+          sut.items[1],
+          sut.items[2],
+      ])
+    })
+  })
 })
