@@ -9,7 +9,7 @@ import { inject, injectable } from "tsyringe";
 
 
 @injectable()
-export class UserTypeormRepository implements UsersRepository {
+export class UsersTypeormRepository implements UsersRepository {
   sortableFields: string[] = ['name', 'created_at']
 
   constructor(
@@ -21,7 +21,7 @@ export class UserTypeormRepository implements UsersRepository {
     const user = await this.usersRepository.findOneBy({ email })
 
     if(!user) {
-      throw new NotFoundError(`User not found using emai ${email}`)
+      throw new NotFoundError(`User not found using email ${email}`)
     }
 
     return user
@@ -39,7 +39,7 @@ export class UserTypeormRepository implements UsersRepository {
     const user = await this.usersRepository.findOneBy({ email })
 
     if(user) {
-      throw new ConflictError('Email already used by another user')
+      throw new ConflictError('Email already used on another user')
     }
   }
   create(props: CreateUsersProps): UserModel {
