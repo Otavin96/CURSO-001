@@ -5,11 +5,16 @@ import { ILike, Repository } from "typeorm";
 import { User } from "../entities/users.entity";
 import { NotFoundError } from "@/common/domain/erros/not-found-error";
 import { ConflictError } from "@/common/domain/erros/conflict-error";
+import { inject, injectable } from "tsyringe";
 
+
+@injectable()
 export class UserTypeormRepository implements UsersRepository {
   sortableFields: string[] = ['name', 'created_at']
 
-  constructor(private usersRepository: Repository<User>){}
+  constructor(
+    @inject('UsersDefaultTypeormRepository')
+    private usersRepository: Repository<User>){}
 
 
   async findByEmail(email: string): Promise<UserModel> {
